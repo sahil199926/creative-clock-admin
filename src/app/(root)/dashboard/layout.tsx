@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { useAuth } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/Button";
 
 export default function DashboardLayout({
@@ -12,80 +10,59 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const { logout, user } = useAuth();
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (!user) {
-        router.push("/login");
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [router]);
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      document.cookie =
-        "authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
-      router.push("/login");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
+  const handleLogout = () => {
+    logout();
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <Link
-                  href="/dashboard"
-                  className="text-xl font-bold text-[#EE6E27]"
-                >
-                  Creative Clock Admin
-                </Link>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gray-100">
+        <nav className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16">
+              <div className="flex">
+                <div className="flex-shrink-0 flex items-center">
+                  <Link
+                    href="/dashboard"
+                    className="text-xl font-bold text-[#EE6E27]"
+                  >
+                    Creative Clock Admin
+                  </Link>
+                </div>
+                <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                  <Link
+                    href="/dashboard"
+                    className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/dashboard/users"
+                    className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  >
+                    Users
+                  </Link>
+                </div>
               </div>
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
-                  href="/dashboard"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+              <div className="flex items-center">
+                <Button
+                  variant="outline"
+                  onClick={handleLogout}
+                  className="ml-4"
                 >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/dashboard/users"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Users
-                </Link>
+                  Logout
+                </Button>
               </div>
-            </div>
-            <div className="flex items-center">
-              <Button variant="outline" onClick={handleLogout} className="ml-4">
-                Logout
-              </Button>
             </div>
           </div>
-        </div>
-      </nav>
+        </nav>
 
-      <main className="py-10">
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">{children}</div>
-      </main>
-    </div>
+        <main className="py-10">
+          <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">{children}</div>
+        </main>
+      </div>
+    </ProtectedRoute>
   );
 }
