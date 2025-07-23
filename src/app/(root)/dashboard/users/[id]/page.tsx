@@ -105,8 +105,6 @@ export default function UserDetailsPage() {
   return (
     <div className="container mx-auto px-4 py-10">
       <div className="bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-3xl font-bold text-[#EE6E27] mb-6">User Details</h1>
-
         <div className="space-y-6">
           <div>
             <h2 className="text-xl font-semibold mb-2">Basic Information</h2>
